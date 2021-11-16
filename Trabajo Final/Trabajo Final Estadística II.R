@@ -6,6 +6,7 @@ library(ggbiplot)
 library(nnet)
 install.packages('caret')
 library(caret)
+library(MASS)
 library(class)
 data1 <- dioxido1
 data1[,1] <- NULL
@@ -41,10 +42,10 @@ dataest1 <- data.frame(dataest1)
 sample <- sample.int(n = nrow(dataest1), size = floor(.80*nrow(dataest1)), replace = F)
 train <- dataest1[sample, ]
 test  <- dataest1[-sample, ]
-levels(test$Cluster) <- c(1,2,3,4) #En caso de error en la matriz de confusión
+
 #levels(test$Cluster) <- c(1,2,3) #En caso de error en la matriz de confusión
 
-#REGRESIÓN LOGÍSTICA MULTINOMIAL
+#REGRESIÓN LOGÍSTICA MULTINOMIAL - clasificación
 mylogit <- multinom(Cluster ~ diox + temp + emp + dias + precip + viento + pob, data = train, model=TRUE)
 p <- predict(mylogit, newdata = test)
 test$Cluster
@@ -64,4 +65,12 @@ pr <- knn(train,test,cl=train$Cluster,k=4)
 pr
 test$Cluster
 test$Cluster <- factor(test$Cluster)
+levels(test$Cluster) <- levels(pr) #En caso de error en la matriz de confusión
 confusionMatrix(pr,test$Cluster)
+
+## Análisis discriminante
+mod = lda(train$Cluster ~.,data=train)
+mod
+
+
+
